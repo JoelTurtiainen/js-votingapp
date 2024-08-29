@@ -37,7 +37,7 @@ export const dataRegister = {
     {
       id: 'btn-register',
       className: 'btn btn-primary',
-      type: 'submit',
+      type: 'button',
       textContent: 'Register',
     },
     {
@@ -52,12 +52,14 @@ export const dataRegister = {
 export const dataLogin = {
   fields: [
     {
+      name: 'username',
       required: false,
       type: 'text',
       autocomplete: 'username',
       placeholder: 'username',
     },
     {
+      name: 'password',
       required: false,
       type: 'password',
       autocomplete: 'current-password',
@@ -68,7 +70,7 @@ export const dataLogin = {
     {
       id: 'btn-login',
       className: 'btn btn-primary',
-      type: 'submit',
+      type: 'button',
       textContent: 'Login',
     },
     {
