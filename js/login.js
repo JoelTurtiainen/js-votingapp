@@ -1,11 +1,11 @@
-import { dataRegister, dataLogin } from './inputs.js';
-import { localStorageHas } from './storage.js';
+import { dataRegister, dataLogin } from './data.js';
+import { getParsedFromStorage, localStorageHas } from './storage.js';
 
 // !!Server sided!! (if we had one)
 export function checkLogin(formData) {
-  console.log(formData);
-  const storageItem = JSON.parse(localStorage.getItem(formData.username));
-  if (storageItem && formData.password === storageItem.password) {
+  const userData = getParsedFromStorage(formData.username);
+  const loginInfo = userData.sensitive;
+  if (userData && formData.password === loginInfo.password) {
     return true;
   } else {
     return false;
@@ -18,8 +18,8 @@ export function validateRegisterForm(formData) {
   const data = dataRegister.fields;
   let valid = true;
 
-  required.forEach((field) => {
-    const { name, pattern, feedback } = data[field.name];
+  required.forEach((field, n) => {
+    const { name, pattern, feedback } = data[n];
     const feedbackBox = field.nextElementSibling;
     const value = formData[name];
 
@@ -43,4 +43,8 @@ export function validateRegisterForm(formData) {
   });
 
   return valid;
+}
+
+export function loginUser(username) {
+  localStorage.setItem('currentUser', username);
 }

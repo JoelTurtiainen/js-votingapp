@@ -6,15 +6,27 @@ export function localStorageHas(key, item) {
 }
 
 export function addNewUser(formData) {
-  const { username, email, password } = formData;
+  const { username, email } = formData;
   pushToLocalStorage('usernames', username);
   pushToLocalStorage('emails', email);
+  const userData = { sensitive: formData, voteData: {} };
 
-  localStorage.setItem(username, JSON.stringify(formData));
+  localStorage.setItem(username, JSON.stringify(userData));
 }
 
 export function pushToLocalStorage(key, value) {
-  const taken = JSON.parse(localStorage.getItem(key)) || [];
-  taken.push(value);
-  localStorage.setItem(key, JSON.stringify(taken));
+  const storageItem = getParsedFromStorage(key) || [];
+  storageItem.push(value);
+  localStorage.setItem(key, JSON.stringify(storageItem));
+}
+
+export function assignToLocalStorage(localStorageKey, keyToAssign, valueToAssign) {
+  const storageItem = getParsedFromStorage(localStorageKey) || {};
+  storageItem[keyToAssign] = valueToAssign;
+  localStorage.setItem(localStorageKey, JSON.stringify(storageItem));
+  console.log(storageItem);
+}
+
+export function getParsedFromStorage(key) {
+  return JSON.parse(localStorage.getItem(key));
 }

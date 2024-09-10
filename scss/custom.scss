@@ -3,6 +3,8 @@
 
 // Default variable overrides
 // $primary: #87af19;
+//$progress-bg: white;
+
 
 // Required
 @import "../node_modules/bootstrap/scss/variables";
@@ -14,9 +16,19 @@
 @import "../node_modules/bootstrap/scss/nav";
 @import "../node_modules/bootstrap/scss/buttons";
 
+
+
 // Optional Bootstrap components here
 @import "../node_modules/bootstrap/scss/reboot";
 @import "../node_modules/bootstrap/scss/type";
+
+$progress-border-radius: 0.3rem;
+$progress-bar-color: $white;
+$progress-bg: $dark;
+$progress-bar-bg: $secondary;
+$bd-violet: violet;
+
+@import "../node_modules/bootstrap/scss/progress";
 
 // Then add additional custom code here
 
@@ -39,6 +51,43 @@ body {
 .carousel-control-prev,
 .carousel-indicators {
     filter: invert(100%)
+}
+
+.progress {
+	margin-top: 0.5rem;
+	height: 2rem;
+	border-color: aliceblue;
+	outline: white solid 1px;
+}
+
+.progress-text {
+    position: absolute;
+    padding-left: 0.5rem;
+}
+
+.progress-label {
+    width: 100%;
+}
+
+.progress-label input[type="radio"] {
+    display: none;
+}
+  
+/* Style the progress bar when the radio button is checked */
+.progress-label input[type="radio"]:checked + .progress {
+    outline: $primary solid 2px;
+}
+
+.progress-label input[type="radio"]:checked + .progress .progress-bar {
+    background-color: $primary
+}
+
+.remove-item {
+    right: 0%;
+    top: 50%;
+    position: absolute;
+    transform: translate(0%, -50%);
+    color: $danger;
 }
 
 /* Glassmorphism card effect */

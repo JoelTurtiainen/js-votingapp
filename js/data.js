@@ -1,29 +1,54 @@
+export const debugVotePolls = {
+  uniquePollId: {
+    title: 'Lemppari aamupala?',
+    total: 30,
+    options: [
+      { name: 'Puuro', value: 5 },
+      { name: 'Smoothie', value: 5 },
+      { name: 'Voileipä', value: 5 },
+      { name: 'Pekoni ja munat', value: 15 },
+    ],
+  },
+  uniquePollId2: {
+    title: 'Paras peli?',
+    total: 7,
+    options: [
+      { name: 'Nethack', value: 3 },
+      { name: 'Cataclysm DDA', value: 2 },
+      { name: 'Old School Runescape', value: 1 },
+      { name: 'Bomb Rush Cyberfunk', value: 1 },
+    ],
+  },
+};
+
 export const dataRegister = {
-  fields: {
-    username: {
+  title: 'Rekisteröidy',
+  fields: [
+    {
       name: 'username',
+      className: 'form-control',
       required: true,
       type: 'text',
       pattern: /^[a-z0-9_-]{3,15}$/,
       autocomplete: 'username',
       placeholder: 'username',
-      feedback:
-        'Must contain only lowercase letters and numbers, and at least 3 or more characters',
+      feedback: 'Must contain only lowercase letters and numbers, and at least 3 or more characters',
       value: 'joedoe',
     },
-    password: {
+    {
       name: 'password',
+      className: 'form-control',
       required: true,
       type: 'password',
       pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
       autocomplete: 'current-password',
       placeholder: 'password',
-      feedback:
-        'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
+      feedback: 'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
       value: 'A1adhwuhuhawdh',
     },
-    email: {
+    {
       name: 'email',
+      className: 'form-control',
       required: true,
       type: 'email',
       pattern: new RegExp('[A-Za-z0-9]{4,}'),
@@ -32,7 +57,7 @@ export const dataRegister = {
       feedback: 'Not a valid email',
       value: 'example@test.com',
     },
-  },
+  ],
   buttons: [
     {
       id: 'btn-register',
@@ -50,9 +75,11 @@ export const dataRegister = {
 };
 
 export const dataLogin = {
+  title: 'Kirjaudu Sisään',
   fields: [
     {
       name: 'username',
+      className: 'form-control',
       required: false,
       type: 'text',
       autocomplete: 'username',
@@ -60,6 +87,7 @@ export const dataLogin = {
     },
     {
       name: 'password',
+      className: 'form-control',
       required: false,
       type: 'password',
       autocomplete: 'current-password',
