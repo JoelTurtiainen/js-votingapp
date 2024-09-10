@@ -5,7 +5,7 @@
  * @returns {Element} Should return element :)
  */
 
-import { assignToLocalStorage, getParsedFromStorage } from './storage.js';
+import { getParsedFromStorage, updatePollStorageObject } from './storage.js';
 
 //## PROGRESS BAR
 
@@ -89,39 +89,33 @@ export function voteCardToDOM(data) {
 
 function onChange(event) {
   event.preventDefault();
-  const formData = getFormData(this);
+  const option = getFormData(this).option;
   const curUserName = localStorage.getItem('currentUser');
   const curUserData = getParsedFromStorage(curUserName);
-
+  const pollStorageObj = getParsedFromStorage('polls')[this.id];
   const prevOption = curUserData.voteData[this.id] || undefined;
-  updatePollValues(this.id, formData.option, prevOption);
 
-  console.debug(`Poll '${this.id}' option selected: ${formData.option}`);
+  updatePollStorageObject(this.id, pollStorageObj, option, prevOption);
 
-  curUserData.voteData[this.id] = formData.option;
+  console.debug(`Poll '${this.id}' option selected: ${option}`);
+
+  curUserData.voteData[this.id] = option;
   localStorage.setItem(curUserName, JSON.stringify(curUserData));
-  recalculateBars(this);
+
+  recalculateBars(this, pollStorageObj);
 }
 
-function updatePollValues(pollId, option, prevoption = undefined) {
-  const pollStorageObj = getParsedFromStorage('polls')[pollId];
+function recalculateBars(poll, pollStorageObj) {
+  const { total, options } = pollStorageObj;
+  const progressBars = poll.querySelectorAll('.progress-bar');
 
-  // Take a vote away from previous option if any
-  if (prevoption === undefined) {
-    pollStorageObj.total++;
-  } else {
-    pollStorageObj.options[prevoption].value--;
+  for (let index = 0; index < options.length; index++) {
+    const option = options[index];
+    const element = progressBars[index];
+    const width = (option.value / total) * 100 || 0;
+
+    element.style.width = `${width}%`;
   }
-
-  // Add a vote to selected
-  pollStorageObj.options[option].value++;
-
-  assignToLocalStorage('polls', pollId, pollStorageObj);
-}
-
-function recalculateBars(poll) {
-  poll;
-  console.log(poll);
 }
 
 //## LOGIN / REGISTER
@@ -179,4 +173,14 @@ export function createElement(tag, attributes = {}, textContent = '') {
 
 export function getFormData(form) {
   return Object.fromEntries(new FormData(form));
+}
+
+export function loadPollsFromStorage() {
+  const votesFromStorage = getParsedFromStorage('polls');
+  if (votesFromStorage) {
+    Object.entries(votesFromStorage).forEach(([key, value]) => {
+      value.id = key;
+      voteCardToDOM(value);
+    });
+  }
 }

@@ -1,7 +1,7 @@
 import { checkLogin, loginUser, validateRegisterForm } from './login.js';
 import { addNewUser, assignToLocalStorage, getParsedFromStorage, pushToLocalStorage } from './storage.js';
 import { dataRegister, dataLogin, debugVotePolls } from './data.js';
-import { createAuthCard, createElement, createProgressBar, getFormData, voteCardToDOM } from './dom.js';
+import { createAuthCard, createElement, createProgressBar, getFormData, loadPollsFromStorage, voteCardToDOM } from './dom.js';
 import { nanoid } from '../node_modules/nanoid/non-secure/index.js';
 
 const authentication = {
@@ -56,10 +56,6 @@ const authentication = {
   },
 };
 
-if (!localStorage.getItem('currentUser')) {
-  authentication.load();
-}
-
 // TODO: clean this & maybe combine it with voteCardToDOM
 // On selecting vote option add { voteid: CHOSEN_OPTION } to user's storage
 const forms = document.querySelectorAll('.vote');
@@ -75,22 +71,8 @@ Array.from(forms).forEach((form) => {
   });
 });
 
-// const pollModalElement = document.getElementById('addPollModal');
-// pollModalElement.addEventListener('click', (e) => {
-//   if (e.target.id) {
-//     const pollData = document.getElementById('pollData');
-
-//     console.log(e.target.id);
-//     if (e.target.id === 'pollSubmit') {
-//       const formData = getFormData(pollData);
-//       console.log(formData);
-//     } else if (e.target.id === 'pollAddField') {
-//     }
-//   }
-// });
-
 const pollModal = {
-  modal: document.getElementById('myModal'),
+  modal: document.getElementById('pollAddingModal'),
   body: document.querySelector('.modal-body'),
   footer: document.querySelector('.modal-footer'),
   inputTitle: document.getElementById('fieldPollTitle'),
@@ -99,8 +81,8 @@ const pollModal = {
 
   load() {
     // TEMP: For debugging
-    const test = new bootstrap.Modal('#myModal');
-    const modal = bootstrap.Modal.getInstance('#myModal');
+    // const test = new bootstrap.Modal('#myModal');
+    // const modal = bootstrap.Modal.getInstance('#myModal');
     // modal.show();
 
     this.onClick = this.onClick.bind(this);
@@ -108,8 +90,6 @@ const pollModal = {
 
     this.onInput = this.onInput.bind(this);
     this.modal.addEventListener('input', this.onInput);
-
-    this.temp = [];
   },
 
   onInput(e) {
@@ -189,19 +169,12 @@ function pollToData(title, progressBars) {
   return { title, total, options };
 }
 
-pollModal.load();
-
-// // Load from data.js
-// Object.entries(debugVotePolls).forEach(([key, value]) => {
-//   value.id = key;
-//   voteCardToDOM(value);
-// });
-
-// Load from LocalStorage
-const votesFromStorage = getParsedFromStorage('polls');
-if (votesFromStorage) {
-  Object.entries(votesFromStorage).forEach(([key, value]) => {
-    value.id = key;
-    voteCardToDOM(value);
-  });
+// UGLY
+if (!localStorage.getItem('currentUser')) {
+  authentication.load();
+} else {
+  document.getElementById('navCurrentUser').textContent = localStorage.getItem('currentUser');
+  loadPollsFromStorage(); // TODO: Make previously checked options checked on load
 }
+
+pollModal.load();
