@@ -1,6 +1,6 @@
 import { createElement, createProgressBar, getFormData, setAttributes, voteCardToDOM } from './dom.js';
 import { assignToLocalStorage } from './storage.js';
-import { nanoid } from '../node_modules/nanoid/non-secure/index.js';
+import { nanoid } from 'https://cdn.jsdelivr.net/npm/nanoid/nanoid.js';
 
 export const pollModal = {
   modal: document.getElementById('pollAddingModal'),
