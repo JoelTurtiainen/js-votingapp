@@ -147,7 +147,7 @@ const editMode = {
       parentForm.remove();
 
       // TODO: uncomment this on release
-      //removePollFromStorage(parentForm.id);
+      removePollFromStorage(parentForm.id);
     }
   },
 };

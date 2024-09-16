@@ -12,7 +12,7 @@ export const dataRegister = {
       autocomplete: 'username',
       placeholder: 'username',
       feedback: 'Must contain only lowercase letters and numbers, and at least 3 or more characters',
-      value: 'joedoe',
+      value: '',
     },
     {
       name: 'password',
@@ -23,7 +23,7 @@ export const dataRegister = {
       autocomplete: 'current-password',
       placeholder: 'password',
       feedback: 'Password too short',
-      value: 'A1adhwuhuhawdh',
+      value: '',
     },
     {
       name: 'email',
@@ -34,7 +34,7 @@ export const dataRegister = {
       autocomplete: 'email',
       placeholder: 'email',
       feedback: 'Not a valid email',
-      value: 'example@test.com',
+      value: '',
     },
   ],
   buttons: [
