@@ -1,25 +1,4 @@
-export const debugVotePolls = {
-  uniquePollId: {
-    title: 'Lemppari aamupala?',
-    total: 30,
-    options: [
-      { name: 'Puuro', value: 5 },
-      { name: 'Smoothie', value: 5 },
-      { name: 'Voileipä', value: 5 },
-      { name: 'Pekoni ja munat', value: 15 },
-    ],
-  },
-  uniquePollId2: {
-    title: 'Paras peli?',
-    total: 7,
-    options: [
-      { name: 'Nethack', value: 3 },
-      { name: 'Cataclysm DDA', value: 2 },
-      { name: 'Old School Runescape', value: 1 },
-      { name: 'Bomb Rush Cyberfunk', value: 1 },
-    ],
-  },
-};
+export const wizards = ['root', 'Root', 'Admin', 'admin', 'wizard'];
 
 export const dataRegister = {
   title: 'Rekisteröidy',

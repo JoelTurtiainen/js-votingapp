@@ -1,11 +1,11 @@
 /**
- *
+
  * @param {Object} option
  * @param {number} total
- * @returns {Element} Should return element :)
+ * @param {Object} element
  */
 
-import { getParsedFromStorage, updatePollStorageObject } from './storage.js';
+import { getParsedFromStorage, getCurrentUserVote, updatePollStorageObject, updateUserVotes } from './storage.js';
 
 //## PROGRESS BAR
 
@@ -13,11 +13,8 @@ export function createProgressBar(option, total) {
   const width = (option.value / total) * 100 || 0;
 
   const progress = createElement('div', {
-    'className': 'progress fs-6',
-    'role': 'progressbar',
-    'aria-valuenow': option.value,
-    'aria-valuemin': 0,
-    'aria-valuemax': 100,
+    className: 'progress fs-6',
+    role: 'progressbar',
   });
 
   // const progressText = createElement('p', { className: 'progress-text' }, option.name);
@@ -61,53 +58,103 @@ export function createCard(title) {
   return card;
 }
 
-function createVoteCard({ options, total, title }) {
-  const card = createCard(title);
-  const cardBody = card.lastElementChild;
-  const totalText = createElement('p', {}, `Total Votes: ${total}`);
+// function createVoteCard({ options, total, title }) {
+//   const card = createCard(title);
+//   const cardBody = card.lastElementChild;
+//   const totalText = createElement('p', {}, `Total Votes: ${total}`);
 
-  options.forEach((option, n) => {
-    const label = createLabel(option, total, n);
-    cardBody.appendChild(label);
-  });
+//   options.forEach((option, n) => {
+//     const label = createLabel(option, total, n);
+//     cardBody.appendChild(label);
+//   });
 
-  cardBody.appendChild(totalText);
+//   cardBody.appendChild(totalText);
 
-  return card;
-}
+//   return card;
+// }
 
 export function voteCardToDOM(data) {
-  const form = createElement('form', { className: 'vote col', id: data.id });
-  const voteCard = createVoteCard(data);
+  const selected = getCurrentUserVote(data.id);
+
+  const poll = new PollCard(data, selected);
+  const form = poll.form;
+
   const destination = document.getElementById('all-votes');
 
-  form.appendChild(voteCard);
   destination.appendChild(form);
-
-  form.addEventListener('change', onChange);
+  return poll;
 }
 
-function onChange(event) {
-  event.preventDefault();
-  const option = getFormData(this).option;
-  const curUserName = localStorage.getItem('currentUser');
-  const curUserData = getParsedFromStorage(curUserName);
-  const pollStorageObj = getParsedFromStorage('polls')[this.id];
-  const prevOption = curUserData.voteData[this.id] || undefined;
+/**
+ * @param {number} selected
+ */
+class PollCard {
+  constructor(data, selected) {
+    this.id = data.id;
+    this.selected = selected || -1;
+    this.options = data.options;
+    this.total = data.total;
+    this.title = data.title;
+    this.form = this.createPollForm();
+    this.listener = this.onVote.bind(this);
+    this.form.addEventListener('change', this.listener, { passive: true });
+  }
 
-  updatePollStorageObject(this.id, pollStorageObj, option, prevOption);
+  createPollForm() {
+    const card = createCard(this.title);
+    const cardBody = card.lastElementChild;
+    const totalText = createElement('p', {}, `Total Votes: ${this.total}`);
+    const form = createElement('form', { className: 'vote col', id: this.id });
 
-  console.debug(`Poll '${this.id}' option selected: ${option}`);
+    this.options.forEach((option, n) => {
+      const label = createLabel(option, this.total, n);
+      cardBody.appendChild(label);
+    });
 
-  curUserData.voteData[this.id] = option;
-  localStorage.setItem(curUserName, JSON.stringify(curUserData));
+    if (this.selected >= 0) cardBody.children[this.selected].firstElementChild.checked = true;
 
-  recalculateBars(this, pollStorageObj);
+    cardBody.appendChild(totalText);
+    form.appendChild(card);
+
+    return form;
+  }
+
+  refreshData() {
+    const poll = getParsedFromStorage('polls')[this.id];
+    if (poll) {
+      this.total = poll.total;
+      this.options = poll.options;
+      // console.debug(this.total, this.options);
+    } else {
+      console.error(`Poll with id ${this.id} not found in storage.`);
+    }
+  }
+
+  onVote(event) {
+    // if bugs happen is probably here
+    // console.log('onVote event triggered');
+    const prevOption = this.selected;
+    this.selected = event.target.value;
+    this.form.dataset.selected = this.selected;
+    console.debug(`Poll '${this.id}' option selected: ${this.selected}`);
+    updateUserVotes(this.id, this.selected);
+    updatePollStorageObject(this.id, this.selected, prevOption);
+    this.refreshData();
+    recalculateBars(this.id, this.total, this.options);
+  }
+
+  // removeListener() {
+  //   // not working
+  //   console.log(this.form);
+  //   this.form.removeEventListener('change', this.listener);
+  // }
 }
 
-function recalculateBars(poll, pollStorageObj) {
-  const { total, options } = pollStorageObj;
+function recalculateBars(id, total, options) {
+  const poll = document.getElementById(id);
   const progressBars = poll.querySelectorAll('.progress-bar');
+  const totalVotesDisplay = poll.querySelector('.card-body > p');
+  totalVotesDisplay.textContent = `Total Votes: ${total}`;
 
   for (let index = 0; index < options.length; index++) {
     const option = options[index];
@@ -144,7 +191,7 @@ export function createAuthCard(data) {
   // Input fields
   data.fields.forEach((field) => {
     const input = createInput(field);
-    console.log(input);
+    // console.log(input);
     cardBody.appendChild(input);
   });
 
@@ -162,25 +209,28 @@ export function createAuthCard(data) {
 
 //## COMMON
 
+/**
+ * @param {string} tag - The type of element to create (e.g., 'div', 'span').
+ * @param {Object} [attributes={}] - An object containing key-value pairs to set as attributes on the element.
+ * @param {string} [textContent=''] - The text content to set for the element.
+ * @returns {HTMLElement} The newly created DOM element.
+ */
+
 export function createElement(tag, attributes = {}, textContent = '') {
   const element = document.createElement(tag);
   Object.assign(element, attributes);
   if (textContent) {
     element.textContent = textContent;
   }
+
   return element;
+}
+
+export function setAttributes(element, attributes) {
+  Object.entries(attributes).forEach(([attr, value]) => element.setAttribute(attr, value));
+  return;
 }
 
 export function getFormData(form) {
   return Object.fromEntries(new FormData(form));
-}
-
-export function loadPollsFromStorage() {
-  const votesFromStorage = getParsedFromStorage('polls');
-  if (votesFromStorage) {
-    Object.entries(votesFromStorage).forEach(([key, value]) => {
-      value.id = key;
-      voteCardToDOM(value);
-    });
-  }
 }
